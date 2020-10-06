@@ -10,6 +10,17 @@ const typeDefs = gql`
     id: ID!
     name: String
     username: String
+    tasks: [Task]
+  }
+
+  interface Task @key(fields: "id"){
+    id: ID!
+    accountsField: String!
+  }
+
+  type TestSectionTask implements Task @key(fields: "id") {
+      id: ID!
+      accountsField: String!
   }
 `;
 
@@ -22,6 +33,19 @@ const resolvers = {
   User: {
     __resolveReference(object) {
       return users.find(user => user.id === object.id);
+    },
+    tasks(user) {
+        return tasks
+    }
+  },
+  Task: {
+    __resolveReference(object) {
+        return tasks[0]
+    }
+  },
+  TestSectionTask: {
+    __resolveReference(object) {
+        return tasks[0]
     }
   }
 };
@@ -53,3 +77,5 @@ const users = [
     username: "@complete"
   }
 ];
+
+const tasks = [{id: "1234", __typename: "TestSectionTask", accountsField: "accounts"}]

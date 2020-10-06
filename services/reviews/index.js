@@ -13,11 +13,23 @@ const typeDefs = gql`
     id: ID! @external
     username: String @external
     reviews: [Review]
+    tasksFromReviews: [Task]
   }
 
   extend type Product @key(fields: "upc") {
     upc: String! @external
     reviews: [Review]
+  }
+
+  extend interface Task @key(fields: "id"){
+    id: ID! @external
+    reviewsField: String!
+  }
+
+  extend type TestSectionTask implements Task @key(fields: "id") {
+      id: ID! @external
+
+      reviewsField: String!
   }
 `;
 
@@ -37,11 +49,24 @@ const resolvers = {
     username(user) {
       const found = usernames.find(username => username.id === user.id);
       return found ? found.username : null;
+    },
+    tasksFromReviews(user) {
+        return tasks
     }
   },
   Product: {
     reviews(product) {
       return reviews.filter(review => review.product.upc === product.upc);
+    }
+  },
+  Task: {
+    __resolveReference(object) {
+        return tasks[0]
+    }
+  },
+  TestSectionTask: {
+    __resolveReference(object) {
+        return tasks[0]
     }
   }
 };
@@ -89,3 +114,5 @@ const reviews = [
     body: "Prefer something else."
   }
 ];
+
+const tasks = [{id: "1234", __typename: "TestSectionTask", reviewsField: "reviews"}]
